@@ -69,7 +69,7 @@ const updateStudent = async (req, res) => {
 
   try {
     const updatedStudent = await Student.findOneAndUpdate(
-      { id: studentId },
+      { rollNo: studentId },
       { name, branch, marks },
       { new: true }
     );
@@ -92,14 +92,13 @@ const updateStudent = async (req, res) => {
 const deleteStudent = async (req, res) => {
   try {
     const { studentId } = req.params;
-    const student = await Student.findById(studentId);
+    const student = await Student.findOneAndDelete({ rollNo: studentId });
     if (!student) {
       return res.status(404).json({ message: "Student details not found" });
     }
-    const response = await Student.findByIdAndDelete(studentId);
     return res
       .status(200)
-      .json({ message: `Student ${response.name} deleted!` });
+      .json({ message: `Student ${student.name} deleted!` });
   } catch (err) {
     res
       .status(500)
