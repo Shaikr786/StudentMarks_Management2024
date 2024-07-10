@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import axios from '../api/axios';
 import { Link } from 'react-router-dom';
 import './EnterData.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
@@ -49,14 +49,22 @@ function EnterData() {
     return newErrors;
   };
 
-  const checkDuplicateRollNo = async (rollNo) => {
+  const checkDuplicateRollNo = async () => {
     try {
-      const response = await axios.get(`http://localhost:4000/students/${rollNo}`);
-      return response.data.exists;
-    } catch (error) {
-      console.error('Error checking duplicate roll number:', error);
-      return false;
+      const response = await axios.get(`/students/${rollNo}`);
+      if (response.data) {
+        return true; // Roll number already exists
+      }
+    } catch (err) {
+      if (err.response && err.response.status === 404) {
+        // Roll number does not exist, this is expected if the roll number is new
+        return false; // Roll number does not exist
+      } else {
+        console.error('Error checking duplicate roll number:', err);
+        setErrors('Failed to check duplicate roll number. Please try again later.');
+      }
     }
+    return true; // Default to true in case of error
   };
 
   const handleSubmit = async (event) => {
@@ -65,7 +73,7 @@ function EnterData() {
     const validationErrors = validateFields();
     if (Object.keys(validationErrors).length === 0) {
       setLoading(true);
-      const isDuplicate = await checkDuplicateRollNo(rollNo);
+      const isDuplicate = await checkDuplicateRollNo();
       if (isDuplicate) {
         setLoading(false);
         setShowPopup(true);
@@ -77,7 +85,7 @@ function EnterData() {
           setPopupColor('');
         }, 3000);
       } else {
-        axios.post('http://localhost:4000/students', {
+        axios.post('/students', {
           name: studentName,
           rollNo,
           branch,
