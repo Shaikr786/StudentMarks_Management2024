@@ -70,7 +70,6 @@ const StudentDataDisplay = () => {
   };
 
   const handleDeleteStudent = () => {
-    if (!studentToDelete) return;
 
     axios.delete(`/students/${studentToDelete}`)
       .then(response => {
@@ -96,8 +95,8 @@ const StudentDataDisplay = () => {
     filterData();
   };
 
-  const confirmDelete = (studentId) => {
-    setStudentToDelete(studentId);
+  const confirmDelete = (rollNo) => {
+    setStudentToDelete(rollNo);
     setDeleteConfirmVisible(true);
   };
 
@@ -170,7 +169,7 @@ const StudentDataDisplay = () => {
               </div>
               <div className="action-buttons">
                 <button className="edit-button" onClick={() => openEditPopup(student)}>Edit</button>
-                <button className="delete-button" onClick={() => confirmDelete(student._id)}>Delete</button>
+                <button className="delete-button" onClick={() => confirmDelete(student.rollNo)}>Delete</button>
               </div>
             </div>
           </div>
@@ -223,6 +222,7 @@ const EditStudentPopup = ({ student, onClose, fetchStudentData, setUpdateMessage
       [name]: value,
     }));
   };
+  
 
   const handleMarksChange = (index, field, value) => {
     const updatedMarks = studentData.marks.map((mark, i) => (
@@ -233,6 +233,7 @@ const EditStudentPopup = ({ student, onClose, fetchStudentData, setUpdateMessage
       marks: updatedMarks,
     }));
   };
+  
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -243,7 +244,7 @@ const EditStudentPopup = ({ student, onClose, fetchStudentData, setUpdateMessage
         return;
       }
       // Update student data
-      await axios.put(`/students/${student._id}`, studentData);
+      await axios.put(`/students/${student.rollNo}`, studentData);
       fetchStudentData(); // Refresh the student data after updating
       setUpdateMessage('Student entry updated successfully!');
       setTimeout(() => setUpdateMessage(''), 3000);
